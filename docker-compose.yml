@@ -13,14 +13,18 @@ services:
       - maillogs:/var/log/mail
       - ./config/:/tmp/docker-mailserver/
     ports:
-      - "25:25"     # SMTP
-      - "143:143"   # IMAP
-      - "587:587"   # Submission (SMTP Auth)
-      - "993:993"   # Secure IMAP
+      - "2525:25"     # SMTP - changed to avoid host conflict
+      - "143:143"     # IMAP
+      - "587:587"     # Submission (SMTP Auth)
+      - "993:993"     # Secure IMAP
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
       - SYS_PTRACE
+      - SYS_ADMIN     # ← added to fix domainname permission
+    security_opt:
+      - apparmor:unconfined  # ← added to avoid AppArmor restrictions
+    privileged: true         # ← full privileges for container init to work
 
   roundcube:
     image: roundcube/roundcubemail:latest
